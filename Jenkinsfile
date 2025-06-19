@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git 'https://github.com/runalp97/project3.git'
+        git branch: 'main', url: 'https://github.com/runalp97/project3.git'
       }
     }
 
@@ -24,4 +24,4 @@ pipeline {
       }
     }
   }
-} 
+}
