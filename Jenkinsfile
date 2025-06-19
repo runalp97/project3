@@ -2,9 +2,8 @@ pipeline {
   agent any
 
   environment {
-  TF_IN_AUTOMATION = 'true'
-}
-
+    TF_IN_AUTOMATION = 'true'
+  }
 
   stages {
     stage('Checkout') {
@@ -19,12 +18,13 @@ pipeline {
           $class: 'AmazonWebServicesCredentialsBinding',
           credentialsId: 'aws-jenkins-creds'
         ]]) {
-        dir('terrafiles') {
-          sh '''
-            terraform init
-            terraform plan
-            terraform apply -auto-approve
-          '''
+          dir('terrafiles') {
+            sh '''
+              terraform init
+              terraform plan
+              terraform apply -auto-approve
+            '''
+          }
         }
       }
     }
