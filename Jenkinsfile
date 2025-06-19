@@ -3,8 +3,6 @@ pipeline {
 
   environment {
   TF_IN_AUTOMATION = 'true'
-  AWS_ACCESS_KEY_ID = 'AKIARZDBHO2NRETAQRMY'
-  AWS_SECRET_ACCESS_KEY = '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'
 }
 
 
@@ -17,6 +15,10 @@ pipeline {
 
     stage('Terraform Init & Apply') {
       steps {
+        withCredentials([[
+          $class: 'AmazonWebServicesCredentialsBinding',
+          credentialsId: 'aws-jenkins-creds'
+        ]]) {
         dir('terrafiles') {
           sh '''
             terraform init
