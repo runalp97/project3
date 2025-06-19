@@ -1,23 +1,20 @@
 pipeline {
-    agent any
+  agent any
 
-
-    environment {
+  environment {
     TF_IN_AUTOMATION = 'true'
   }
 
-
-    stages {
-        stage('Checkout') {
+  stages {
+    stage('Checkout') {
       steps {
-        git 'https://github.com/<your-username>/sample-web-app.git'
+        git 'https://github.com/runalp97/project3.git'
       }
     }
 
-    
     stage('Terraform Init & Apply') {
       steps {
-        dir('terraform') {
+        dir('terrafiles') {
           sh '''
             terraform init
             terraform plan
@@ -26,4 +23,5 @@ pipeline {
         }
       }
     }
- 
+  }
+} 
