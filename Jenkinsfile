@@ -2,8 +2,11 @@ pipeline {
   agent any
 
   environment {
-    TF_IN_AUTOMATION = 'true'
-  }
+  TF_IN_AUTOMATION = 'true'
+  AWS_ACCESS_KEY_ID = 'AKIARZDBHO2NRETAQRMY'
+  AWS_SECRET_ACCESS_KEY = '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'
+}
+
 
   stages {
     stage('Checkout') {
