@@ -16,7 +16,7 @@ pipeline {
       steps {
         withCredentials([[
           $class: 'AmazonWebServicesCredentialsBinding',
-          credentialsId: 'aws-jenkins-creds'
+          credentialsId: 'aws-creds'
         ]]) {
           dir('terrafiles') {
             sh '''
