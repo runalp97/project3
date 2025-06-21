@@ -14,16 +14,29 @@ pipeline {
 
     stage('Terraform Init & Apply') {
       steps {
-        withCredentials([[
-          $class: 'AmazonWebServicesCredentialsBinding',
-          credentialsId: 'aws-creds'
-        ]]) {
-          dir('terrafiles') {
-            sh '''
-              terraform init
-              terraform plan
-              terraform apply -auto-approve
-            '''
+        script {
+          def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-jenkins-creds']]
+          withCredentials(awsCreds) {
+            dir('terrafiles') {
+              sh '''
+                terraform init
+                terraform plan
+                terraform apply -auto-approve
+              '''
+            }
+          }
+        }
+      }
+    }
+
+    stage('Terraform Destroy') {
+      steps {
+        script {
+          def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-jenkins-creds']]
+          withCredentials(awsCreds) {
+            dir('terrafiles') {
+              sh 'terraform destroy -auto-approve'
+            }
           }
         }
       }
