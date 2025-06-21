@@ -15,7 +15,7 @@ pipeline {
     stage('Terraform Init & Apply') {
       steps {
         script {
-          def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-jenkins-creds']]
+          def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]
           withCredentials(awsCreds) {
             dir('terrafiles') {
               sh '''
@@ -32,7 +32,7 @@ pipeline {
     stage('Terraform Destroy') {
       steps {
         script {
-          def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-jenkins-creds']]
+          def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]
           withCredentials(awsCreds) {
             dir('terrafiles') {
               sh 'terraform destroy -auto-approve'
