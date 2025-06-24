@@ -1,12 +1,12 @@
 pipeline {
     agent any
-    s
-    environment {
-        TF_IN_AUTOMATION = 'true'
-    }
 
     parameters {
         booleanParam(name: 'RUN_DESTROY', defaultValue: false, description: 'Check to destroy infra after install')
+    }
+
+    environment {
+        TF_IN_AUTOMATION = 'true'
     }
 
     stages {
@@ -25,14 +25,14 @@ pipeline {
                             sh 'terraform init'
                             sh 'terraform plan'
                             sh 'terraform apply -auto-approve'
-
-                            // Capture public IP of EC2 instance
-                            env.EC2_PUBLIC_IP = sh(
-                script: 'terraform output -raw instance_public_ip',
-                returnStdout: true
-              ).trim()
                         }
                     }
+
+                    // Capture EC2 IP **after** Terraform apply
+                    env.EC2_PUBLIC_IP = sh(
+                        script: 'cd terrafiles && terraform output -raw instance_public_ip',
+                        returnStdout: true
+                    ).trim()
                 }
             }
         }
@@ -42,12 +42,12 @@ pipeline {
                 withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'PEM_FILE')]) {
                     script {
                         sh """
-          ansible-playbook \
-            -i "${env.EC2_PUBLIC_IP}," \
-            -u ec2-user \
-            --private-key $PEM_FILE \
-            ansible/install.yml
-        """
+                            ansible-playbook \
+                            -i "${env.EC2_PUBLIC_IP}," \
+                            -u ec2-user \
+                            --private-key $PEM_FILE \
+                            ansible/install.yml
+                        """
                     }
                 }
             }
@@ -70,4 +70,3 @@ pipeline {
         }
     }
 }
-
