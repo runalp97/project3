@@ -46,6 +46,7 @@ pipeline {
                             -i "${env.EC2_PUBLIC_IP}," \
                             -u ec2-user \
                             --private-key $PEM_FILE \
+                            --ssh-extra-args "-o StrictHostKeyChecking=no"
                             ansible/install.yml
                         """
                     }
@@ -70,3 +71,4 @@ pipeline {
         }
     }
 }
+
