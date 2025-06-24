@@ -1,6 +1,6 @@
 pipeline {
     agent any
-
+    s
     environment {
         TF_IN_AUTOMATION = 'true'
     }
@@ -22,11 +22,15 @@ pipeline {
                     def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: '3738348f-0ac5-4792-8e4b-1f39be529b69']]
                     withCredentials(awsCreds) {
                         dir('terrafiles') {
-                            sh '''
-                terraform init
-                terraform plan
-                terraform apply -auto-approve
-              '''
+                            sh 'terraform init'
+                            sh 'terraform plan'
+                            sh 'terraform apply -auto-approve'
+
+                            // Capture public IP of EC2 instance
+                            env.EC2_PUBLIC_IP = sh(
+                script: 'terraform output -raw instance_public_ip',
+                returnStdout: true
+              ).trim()
                         }
                     }
                 }
@@ -35,9 +39,17 @@ pipeline {
 
         stage('Ansible Install') {
             steps {
-                sh '''
-          ansible-playbook -i ansible/hosts.ini ansible/install.yml
-        '''
+                withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'PEM_FILE')]) {
+                    script {
+                        sh """
+          ansible-playbook \
+            -i "${env.EC2_PUBLIC_IP}," \
+            -u ec2-user \
+            --private-key $PEM_FILE \
+            ansible/install.yml
+        """
+                    }
+                }
             }
         }
 
