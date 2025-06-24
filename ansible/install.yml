@@ -1,6 +1,6 @@
 ---
 - name: Install Nginx and Node.js on EC2
-  hosts: web
+  hosts: all
   become: yes
 
   tasks:
