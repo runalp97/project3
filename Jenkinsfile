@@ -19,7 +19,7 @@ pipeline {
         stage('Terraform Init & Apply') {
             steps {
                 script {
-                    def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: '3738348f-0ac5-4792-8e4b-1f39be529b69']]
+                    def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials']]
                     withCredentials(awsCreds) {
                         dir('terrafiles') {
                             sh 'terraform init'
@@ -33,6 +33,9 @@ pipeline {
                         script: 'cd terrafiles && terraform output -raw instance_public_ip',
                         returnStdout: true
                     ).trim()
+                    
+                    // Verify IP was captured
+                    echo "Captured EC2 Public IP: ${env.EC2_PUBLIC_IP}"
                 }
             }
         }
@@ -41,12 +44,17 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'PEM_FILE')]) {
                     script {
+                        // Set proper permissions for the key
+                        sh "chmod 600 ${PEM_FILE}"
+                        
+                        // Run Ansible with proper formatting
                         sh """
                             ansible-playbook \
                             -i "${env.EC2_PUBLIC_IP}," \
                             -u ec2-user \
-                            --private-key $PEM_FILE \
-                            --ssh-extra-args "-o StrictHostKeyChecking=no"
+                            --private-key ${PEM_FILE} \
+                            --ssh-extra-args "-o StrictHostKeyChecking=no" \
+                            -b --become-method=sudo \
                             ansible/install.yml
                         """
                     }
@@ -60,7 +68,7 @@ pipeline {
             }
             steps {
                 script {
-                    def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: '3738348f-0ac5-4792-8e4b-1f39be529b69']]
+                    def awsCreds = [[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials']]
                     withCredentials(awsCreds) {
                         dir('terrafiles') {
                             sh 'terraform destroy -auto-approve'
@@ -71,4 +79,3 @@ pipeline {
         }
     }
 }
-

@@ -24,7 +24,7 @@ variable "instance_type" {
 }
 
 variable "key_name" {
-  description = "kpair1"
+  description = "prokey"
   type        = string
 }
 
