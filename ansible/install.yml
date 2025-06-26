@@ -5,21 +5,21 @@
 
   tasks:
     - name: Update apt cache
-      apt:
+      yum:
         update_cache: yes
 
     - name: Install Nginx
-      apt:
+      yum:
         name: nginx
         state: present
 
     - name: Install Node.js
-      apt:
+      yum:
         name: nodejs
         state: present
 
     - name: Install npm
-      apt:
+      yum:
         name: npm
         state: present
 
