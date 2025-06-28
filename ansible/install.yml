@@ -4,9 +4,8 @@
   become: yes
 
   tasks:
-    - name: Update apt cache
-      yum:
-        update_cache: yes
+    - name: Update YUM cache
+      command: yum makecache
 
     - name: Install Nginx
       yum:

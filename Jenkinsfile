@@ -41,26 +41,25 @@ pipeline {
         }
 
         stage('Ansible Install') {
-            steps {
-                withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'PEM_FILE')]) {
-                    script {
-                        // Set proper permissions for the key
-                        sh "chmod 600 ${PEM_FILE}"
-                        
-                        // Run Ansible with proper formatting
-                        sh """
-                            ansible-playbook \
-                            -i "${env.EC2_PUBLIC_IP}," \
-                            -u ec2-user \
-                            --private-key ${PEM_FILE} \
-                            --ssh-extra-args "-o StrictHostKeyChecking=no" \
-                            -b --become-method=sudo \
-                            ansible/install.yml
-                        """
-                    }
-                }
+    steps {
+        withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'PEM_FILE')]) {
+            script {
+                def ip = env.EC2_PUBLIC_IP
+                sh """#!/bin/bash
+                    chmod 600 \$PEM_FILE
+
+                    ansible-playbook \
+                      -i '${ip},' \
+                      -u ec2-user \
+                      --private-key \$PEM_FILE \
+                      --ssh-extra-args "-o StrictHostKeyChecking=no" \
+                      -b --become-method=sudo \
+                      ansible/install.yml
+                """
             }
         }
+    }
+}
 
         stage('Terraform Destroy') {
             when {
